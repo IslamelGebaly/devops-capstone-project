@@ -37,9 +37,11 @@ class TestAccountService(TestCase):
         init_db(app)
         talisman.force_https = False
 
+
     @classmethod
     def tearDownClass(cls):
         """Runs once before test suite"""
+
 
     def setUp(self):
         """Runs before each test"""
@@ -47,6 +49,7 @@ class TestAccountService(TestCase):
         db.session.commit()
 
         self.client = app.test_client()
+
 
     def tearDown(self):
         """Runs once after each test case"""
@@ -81,12 +84,14 @@ class TestAccountService(TestCase):
         response = self.client.get("/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+
     def test_health(self):
         """It should be healthy"""
         resp = self.client.get("/health")
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
         self.assertEqual(data["status"], "OK")
+
 
     def test_create_account(self):
         """It should Create a new Account"""
@@ -110,10 +115,12 @@ class TestAccountService(TestCase):
         self.assertEqual(new_account["phone_number"], account.phone_number)
         self.assertEqual(new_account["date_joined"], str(account.date_joined))
 
+
     def test_bad_request(self):
         """It should not Create an Account when sending the wrong data"""
         response = self.client.post(BASE_URL, json={"name": "not enough data"})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
     def test_unsupported_media_type(self):
         """It should not Create an Account when sending the wrong media type"""
@@ -124,6 +131,7 @@ class TestAccountService(TestCase):
             content_type="test/html"
         )
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
 
     # ADD YOUR TEST CASES HERE ...
     def test_read_an_account(self):
@@ -136,6 +144,7 @@ class TestAccountService(TestCase):
         data = resp.get_json()
         self.assertEqual(data["name"], account.name)
 
+
     def test_account_not_found(self):
         '''It shoud return HTTP 404 NOT FOUND when passing an invalid ID'''
         resp = self.client.get(
@@ -143,6 +152,7 @@ class TestAccountService(TestCase):
         )
 
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
 
     def test_update_an_account(self):
         '''It should update an existing account'''
@@ -161,6 +171,7 @@ class TestAccountService(TestCase):
         updated_account = resp.get_json()
         self.assertEqual("NewName", updated_account["name"])
 
+
     def test_list_accounts(self):
         '''It should get a list of accounts'''
         self._create_accounts(5)
@@ -175,10 +186,12 @@ class TestAccountService(TestCase):
         resp = self.client.delete(f"{BASE_URL}/{account.id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
+
     def test_method_not_allowed(self):
         '''It should not allow an illegal method call'''
         resp = self.client.delete(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
     def test_security_headers(self):
         '''It should return the security headers'''
@@ -194,9 +207,9 @@ class TestAccountService(TestCase):
         for key, value in headers.items():
             self.assertEqual(response.headers.get(key), value)
 
+
     def test_cors_security(self):
         '''It should return a CORS header'''
         resp = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.headers.get('Access-Control-Allow-Origin'), '*')
-
